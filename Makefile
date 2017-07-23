@@ -17,6 +17,7 @@ Cask:
 
 clean:
 	$(RM) init.el Cask
+	$(RM) -r .cask
 	$(RM) *.elc
 	$(RM) */*.elc
 
