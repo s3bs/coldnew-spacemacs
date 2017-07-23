@@ -220,7 +220,9 @@ Since the =Cask= file is just emacs-lisp file, add it to mode-alist.
 Finally, we add the following lines to our init file:
 
 #+BEGIN_SRC emacs-lisp
-  (require 'cask "~/.cask/cask.el")
+  (if (file-exists-p "/usr/local/share/emacs/site-lisp/cask/cask.el")
+    (require 'cask "/usr/local/share/emacs/site-lisp/cask/cask.el")
+  (require 'cask "~/.cask/cask.el)"))
   (cask-initialize)
 #+END_SRC
 
@@ -314,15 +316,15 @@ spacemacs, you can skip following code.
 * Spacemacs
 
 [[https://github.com/syl20bnr/spacemacs][Spacemacs]] is an emacs starterkit focus on [[https://gitorious.org/evil/pages/Home][Evil]], which emulate vim keymap on
-Emacs.
+Emacs. 
 
-I make my emacs on top of spacemacs since I also use vim keymap.
+I make my emacs on top of spacemacs, but set it to use emacs keybindings.
 
 In my config file, the original =~/.spacemacs= file has moved to
 =~/.emacs.d/spacemacs.d/init.el= , I also advice spacemacs funtion to
 prevent orphan packages deleted by spacemacs.
 
-After all spacemacs init done, switch back to =*scratch*= buffer.
+After all spacemacs init is done, switch back to =*scratch*= buffer.
 
 ** Load basic spacemacs configuration file
 
