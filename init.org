@@ -238,7 +238,7 @@ to initialize pallet.
 
 ** quelpa
 
-[[https://github.com/quelpa/quelpa][quelpa]] is another package manager which can help you builds an ELPA compatible
+[[https://github.com/quelpa/quelpa][quelpa]] is another package manager which can help you to build an ELPA compatible
 package and installs that locally.
 
 GitHub: https://github.com/quelpa/quelpa
@@ -290,10 +290,10 @@ my own theme or others can't fetch by elpa need to add to load-path, this will
 help emacs find them.
 
 Following are my method to add directories to load-path ~recursively~, this
-function also create directory to prevent directory not exist.
+function also creates a directory, if the directory does not exist.
 
-If you don't have any local elisp and all packages is mantain by cask or elpa or
-spacemacs, you can skip following code.
+If you don't have any local elisp and all packages are mantained by cask, elpa or
+spacemacs, you can skip the following code.
 
 #+BEGIN_SRC emacs-lisp
   ;; Add directories to emacs's `load-path' recursively.
@@ -315,20 +315,22 @@ spacemacs, you can skip following code.
 
 * Spacemacs
 
-[[https://github.com/syl20bnr/spacemacs][Spacemacs]] is an emacs starterkit focus on [[https://gitorious.org/evil/pages/Home][Evil]], which emulate vim keymap on
-Emacs. 
+[[https://github.com/syl20bnr/spacemacs][Spacemacs]] is an emacs starterkit focusing on [[https://gitorious.org/evil/pages/Home][Evil]], which emulates the vim 
+keymap on Emacs. 
 
-I make my emacs on top of spacemacs, but set it to use emacs keybindings.
+I put my emacs settings on top of spacemacs and set it to use emacs (=holy=)
+keybindings. 
 
 In my config file, the original =~/.spacemacs= file has moved to
 =~/.emacs.d/spacemacs.d/init.el= , I also advice spacemacs funtion to
-prevent orphan packages deleted by spacemacs.
+prevent orphan packages deleted by spacemacs. If you want the vim keymap, change
+the appropriate variable in the spacemacs init. 
 
-After all spacemacs init is done, switch back to =*scratch*= buffer.
+After all spacemacs init is done, switch back to the =*scratch*= buffer.
 
 ** Load basic spacemacs configuration file
 
-Latest spacemacs can setup =SPACEMACSDIR= to load customize spacemacs init.el
+The latest spacemacs can setup =SPACEMACSDIR= to load customize spacemacs init.el
 file.
 
 #+BEGIN_SRC emacs-lisp
@@ -346,7 +348,7 @@ I use =Cask= to handle all packages, spacemacs should do nothing here.
     to make it not remove any orphan packages.")
 #+END_SRC
 
-** Spacemacs no need to check newer version
+** Spacemacs - no need to check newer version
 
 Since my spacemacs is installed as submodule, it's no need to check for newer
 version, I'll handle this myself.
@@ -359,9 +361,9 @@ version, I'll handle this myself.
 
 ** Load spacemacs
 
-The original spacemacs is suggest to clone it to =~/.emacs.d=, I really not like
+The original spacemacs suggests to clone it to =~/.emacs.d=, I really do not like
 this. Instead, I move it to =~/.emacs.d/modules/spacemacs= so I can use org-mode
-with literature writing.
+to describe my init. 
 
 #+BEGIN_SRC emacs-lisp
   ;; Make a fake entry point for spacemacs, also modify the
@@ -373,6 +375,7 @@ with literature writing.
          (spacemacs-init
           (concat (file-name-as-directory spacemacs-dir) "init.el"))
          (user-emacs-directory (file-name-directory spacemacs-init))
+         ;; following line is a current HOTFIX to allow spacemacs set package repos
          (package--initialized nil))
     ;; Initial spacemacs, our emacs run on top of it
     (load spacemacs-init))
@@ -398,7 +401,7 @@ spacemacs is really awesome, but there's something I don't like.
     (lisp-interaction-mode))
 #+END_SRC
 
-*** Not use ido-mode
+*** Don't use ido-mode
 
 I don't like the =ido-mode=.
 
@@ -419,7 +422,7 @@ really annoying.
 * Basic setup
 
 Most setup I want to use is done by [[https://github.com/syl20bnr/spacemacs][spacemacs]], but I still keep some basic setup
-here, some are not set or just keep for backward compability.
+here, some are not set or just kept for backward compability.
 
 ** Startup emacs server
 
@@ -445,7 +448,7 @@ We also disable some keys like =⌘-h= bypass to system in emacs-mac port.
   (setq mac-pass-command-to-system nil)
 #+END_SRC
 
-** Don't ask me when close emacs with process is running
+** Don't ask me when I close emacs with a process running
 
 #+BEGIN_SRC emacs-lisp
   (when (require 'noflet)
@@ -454,7 +457,7 @@ We also disable some keys like =⌘-h= bypass to system in emacs-mac port.
       (noflet ((process-list ())) ad-do-it)))
 #+END_SRC
 
-** Don't ask me when kill process buffer
+** Don't ask me when I kill a process buffer
 
 #+BEGIN_SRC emacs-lisp
   (setq kill-buffer-query-functions
@@ -464,7 +467,7 @@ We also disable some keys like =⌘-h= bypass to system in emacs-mac port.
 
 ** Save custom-file as cache
 
-Most of my config is written in this file, it's no need to tracking the emacs's
+Most of my config is written in this file. There is no need to track the emacs's
 custom-setting.
 
 I move the file to cache-dir and make git ignore it.
@@ -480,7 +483,7 @@ I move the file to cache-dir and make git ignore it.
 
 #+BEGIN_SRC emacs-lisp
   (when (require 'async nil 'noerror)
-    ;; If I'm edit my init.org, async generate init.el when save.
+    ;; If I edit my init.org, async generate init.el when save.
     (defun tangle-init ()
       "If the current buffer is 'init.org' the code-blocks are tangled."
       (let ((buffer-name "async-make-init.el"))
@@ -530,7 +533,7 @@ Actually when you familier with emacs, you don't need to use scroll-bar anymore.
 ** Ask for y or n, not yes or no
 
 Emacs starts out asking for you to type yes or no with most important questions.
-Just let me use =y= or =n= with no =RET= required an I'm quite happy.
+Just let me use =y= or =n= with no =RET= required and I'm quite happy.
 
 #+BEGIN_SRC emacs-lisp
   (defalias 'yes-or-no-p 'y-or-n-p)
@@ -538,7 +541,7 @@ Just let me use =y= or =n= with no =RET= required an I'm quite happy.
 
 * Languages and Encodings
 
-Since current Emacs default run on UTF-8, it's no need to setup the encoding.
+Since the current Emacs default runs on UTF-8, there's no need to setup the encoding.
 
 For language, though Traditional Chinese is my mothertone, I still prefer use
 =en_US= to display time info.
@@ -550,7 +553,7 @@ For language, though Traditional Chinese is my mothertone, I still prefer use
 
 * Buildin Packages                                                  :buildin:
 
-Some buildin packages not loaded by emacs, load it here.
+Some buildin packages are not loaded by emacs, load it here.
 
 ** cl-lib
 
@@ -558,7 +561,7 @@ Some buildin packages not loaded by emacs, load it here.
   (req-package cl-lib)
 #+END_SRC
 
-** htmlize                                                         :htmlize:
+** htmlize                                                  :htmlize:review:
 
 #+BEGIN_SRC emacs-lisp
   (req-package htmlize)
@@ -568,14 +571,6 @@ Some buildin packages not loaded by emacs, load it here.
 
 Most of emacs packages do not need many configs or just provide
 commands/functions to use, I put them here.
-
-** 4clojure
-
-[[https://github.com/losingkeys/4clojure.el][4clojure.el]] let you open and evaluate [[http://www.4clojure.com/][4clojure]] questions.
-
-#+BEGIN_SRC emacs-lisp
-  (req-package 4clojure)
-#+END_SRC
 
 ** ascii
 
@@ -603,7 +598,9 @@ Convert simple ASCII art drawings (and org-tables) to beautiful Unicode.
   (req-package ascii-art-to-unicode)
 #+END_SRC
 
-** iedit
+** iedit                                                            :review:
+
+~This might be already provided by spacemacs~
 
 [[https://github.com/victorhge/iedit][iedit]] let you edit multiple regions in the same way simultaneously.
 
@@ -611,24 +608,6 @@ GitHub: https://github.com/victorhge/iedit
 
 #+BEGIN_SRC emacs-lisp
   (req-package iedit)
-#+END_SRC
-
-** pangu-spacing
-
-[[https://github.com/coldnew/pangu-spacing][pangu-spcing]] is an minor-mode to auto add =space= between Chinese and English
-characters. Note that these white-space characters are not really added to the
-contents, it just like to do so.
-
-#+BEGIN_SRC emacs-lisp
-  (req-package pangu-spacing
-    :init
-    (progn
-      ;; start pangu-spacing globally
-      (global-pangu-spacing-mode 1)
-      ;; Always insert `real' space in org-mode.
-      (add-hook 'org-mode-hook
-                '(lambda ()
-                   (set (make-local-variable 'pangu-spacing-real-insert-separtor) t)))))
 #+END_SRC
 
 ** sx
@@ -651,9 +630,9 @@ to delete all whitespace in the direction you are deleting.
     :init (global-hungry-delete-mode))
 #+END_SRC
 
-** rainbow-mode
+** rainbow-mode                                                     :review:
 
-[[https://julien.danjou.info/projects/emacs-packages][rainbow-mode]] s a minor mode for Emacs which displays strings representing colors
+[[https://julien.danjou.info/projects/emacs-packages][rainbow-mode]] is a minor mode for Emacs which displays strings representing colors
 with the color they represent as background.
 
 #+BEGIN_SRC emacs-lisp
@@ -686,7 +665,9 @@ current Emacs major mode.
   (req-package discover-my-major)
 #+END_SRC
 
-** howdoi
+** howdoi                                                           :review:
+
+~Not sure I need this~
 
 [[https://github.com/atykhonov/emacs-howdoi][howdoi]] is a way to query Stack Overflow directly from the Emacs and get back the
 most upvoted answer to the first question that comes up for that query.
@@ -732,7 +713,7 @@ GitHub: https://github.com/nicferrier/emacs-noflet
   (req-package noflet)
 #+END_SRC
 
-** mustache                                                       :mustache:
+** mustache                                         :mustache:review:webdev:
 
 A mustache templating library in Emacs Lisp.
 
@@ -765,7 +746,7 @@ GitHub: https://github.com/magnars/expand-region.el
 
 ** verify-url
 
-verify-url is a little tool that used to find out invalid urls in the buffer or
+verify-url is a little tool that is used to find out invalid urls in the buffer or
 region.
 
 Use =M-x verify-url= to find invalid urls in current buffer.
@@ -818,7 +799,7 @@ of them and make =*scratch*= buffer alone.
     (delete-other-windows))
 #+END_SRC
 
-*** Make emacs can always save buffers (even if file is not modified)
+*** Force emacs to always save buffers (even if file is not modified)
 
 The default command *save-buffer* will not really save file when it
 untouched, use this command can let me force save file even if file is
@@ -1074,13 +1055,57 @@ others user.
     (find-file filename))
 #+END_SRC
 
+*** Duplication current line
+
+#+BEGIN_SRC emacs-lisp
+  (defun duplicate-line ()
+    "Clone line at cursor, leaving the latter intact."
+    ;; This version doesn't mess around with the kill ring
+    (interactive "*")
+    (save-excursion
+      (let ((line-text (buffer-substring-no-properties
+                        (line-beginning-position)
+                        (line-end-position))))
+        (move-end-of-line 1)
+        (newline)
+        (insert line-text))))
+#+END_SRC
+
+*** Moving Lines Up/Down
+
+#+BEGIN_SRC emacs-lisp
+(defun move-line-up ()
+    (interactive)
+    (transpose-lines 1)
+    (forward-line -2))
+
+(defun move-line-down ()
+    (interactive)
+    (forward-line 1)
+    (transpose-lines 1)
+    (forward-line -1))
+
+;; previous implementation used recursion but occationally ran into recursion limit
+(defun move-line-interactive ()
+    (let ((disabled nil))
+      (while (not disabled)
+        (setq disabled (_move-line-interactive) ))))
+
+  (defun _move-line-interactive ()
+    (let ((user-event (read-event "<up> <down> to move line and <return> to finish")))
+      (pcase user-event
+        (`up (move-line-up) nil)
+        (`return t)
+        (`down (move-line-down) nil)
+        (_ nil))))
+#+END_SRC
 ** Debug
 
 *** Eval emacs buffer until error
 
-A really nice command help me to find error on elisp buffer.
+A really nice command to help me to find errors on elisp buffer.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp 
   (defun eval-buffer-until-error ()
     "Evaluate emacs buffer until error occured."
     (interactive)
@@ -1090,18 +1115,17 @@ A really nice command help me to find error on elisp buffer.
 
 * Theme                                                               :theme:
 
-I always use dark theme for coding, [[https://github.com/kuanyui/moe-theme.el][moe-theme]] is a good start point, it's bright
-and has good default faces for most modes. It also has dark and light versions,
-which is convenient.
+I always use a dark theme for coding. I'm using the zenburn theme that comes with
+spacemacs.
 
-However, I always want to customize everything on my own, so I rebuild another
+However, you can always add your own customization. I.e. the
 emacs theme called =coldnew-theme-night= and =coldnew-theme-day=, you can find
 them at [[file:theme/coldnew-theme.el]].
 
-Before use emacs's =load-theme= function, I advise it to it fully
-unload previous theme before loading a new one.
+Before the use of emacs's =load-theme= function, I advise it to fully
+unload the previous theme before loading a new one.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   ;; Make `load-theme' fully unload previous theme before loading a new one.
   (defadvice load-theme
       (before theme-dont-propagate activate)
@@ -1121,6 +1145,7 @@ unload previous theme before loading a new one.
   (req-package spaceline)
 #+END_SRC
 
+
 * Minibuffer                                                    :minibuffer:
 
 #+BEGIN_SRC emacs-lisp
@@ -1131,11 +1156,11 @@ unload previous theme before loading a new one.
       (add-hook 'minibuffer-setup-hook '(lambda () (setq cursor-type 'bar)))))
 #+END_SRC
 
-** Setup keybindings                                            :keybinding:
+** Setup keybindings                                       :keybinding:todo:
 
 Some general purpose keybinding I famillier with.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp 
   (define-key minibuffer-local-map (kbd "C-w") 'backward-kill-word)
   (define-key minibuffer-local-map (kbd "M-p") 'previous-history-element)
   (define-key minibuffer-local-map (kbd "M-n") 'next-history-element)
@@ -1144,7 +1169,7 @@ Some general purpose keybinding I famillier with.
 
 Some shortcuts let me access system path more easily.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :exports none
   (add-hook
    'minibuffer-setup-hook
    '(lambda ()
@@ -1187,7 +1212,7 @@ In most case, I'll make line numers display globally by =linum=.
 #+END_SRC
 
 Disable line number in some mode, for example, since =org-mode= can
-has many lines, it's not recommand to enable linum-mode.
+have many lines, it's not recommand to enable linum-mode.
 
 I use =linum-off= to disable some mode.
 
@@ -1209,7 +1234,7 @@ risk editing stale buffers.
 
 This problem can be solved by:
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (global-auto-revert-mode 1)
   (setq global-auto-revert-non-file-buffers t)
   (setq auto-revert-verbose nil)
@@ -1233,9 +1258,10 @@ depth.
 
 ** Vim Emulation                                                      :evil:
 
-Though I am really familier with emacs, I still like some vim command.
+I'm leaving this here for reference, but I don't like emacs. 
+So if you want some vim additional vim commands ...
 
-#+BEGIN_SRC emacs-lisp :noweb no-export :exports code
+#+BEGIN_SRC emacs-lisp :noweb no-export :tangle no
   (req-package evil
     :require (undo-tree)
     :init (evil-mode t)
@@ -1282,7 +1308,7 @@ they work nicely with version control systems.
 #+END_SRC
 
 ** Remote file editing                                               :tramp:
-
+TODO
 #+BEGIN_SRC emacs-lisp
   (req-package tramp
     :config
@@ -1354,7 +1380,7 @@ GitHub: https://github.com/dgutov/highlight-escape-sequences
 #+begin_src emacs-lisp
   (defun font-lock-comment-annotations ()
     "Highlight a bunch of well known comment annotations.
-  This functions should be added to the hooks of major modes for programming."
+  This function should be added to the hooks of major modes for programming."
     (font-lock-add-keywords
      nil
      '(("\\<\\(FIX\\(ME\\)?\\|BUG\\|HACK\\):" 1 font-lock-warning-face t)
@@ -1500,7 +1526,7 @@ For c-mode, just do the same but change the relative
 * Buffer                                                             :buffer:
 ** Create *scratch* automatically
 
-Sometimes I'll clean the =*scratch*= buffer by kill it, add following function
+Sometimes I'll clean the =*scratch*= buffer by killing it. Add the following function
 to let emacs re-create it automatically.
 
 #+BEGIN_SRC emacs-lisp
@@ -1524,7 +1550,7 @@ to let emacs re-create it automatically.
       (setq helm-M-x-fuzzy-match t)
       (setq helm-buffers-fuzzy-matching t)
       (setq helm-recentf-fuzzy-match t)
-      ;; make helm can select anything even not match
+      ;; set helm so it can select anything even not match
       (setq helm-move-to-line-cycle-in-source nil)
       (setq helm-ff-search-library-in-sexp t)
       (setq helm-ff-file-name-history-use-recentf t)
@@ -1944,43 +1970,11 @@ Use my C++ coding style.
     :init (add-hook 'cmake-mode-hook 'cmake-font-lock-activate))
 #+END_SRC
 
-** GLSL                                                               :glsl:
-
-#+BEGIN_SRC emacs-lisp
-  (req-package glsl-mode
-    :mode (("\\.vs\\'" . glsl-mode)
-           ("\\.fs\\'" . glsl-mode)
-           ("\\.gs\\'" . glsl-mode))
-    :config (setq glsl-other-file-alist '(("\\.fs$" (".vs"))
-                                          ("\\.vs$" (".fs")))))
-#+END_SRC
-
-** Go                                                               :golang:
-
-#+BEGIN_SRC emacs-lisp
-  (req-package go-mode
-    :mode "\\.go$"
-    :config
-    (progn
-      ;; Use gofmt to format code before save
-      (add-hook 'before-save-hook 'gofmt-before-save)))
-#+END_SRC
-
 ** Graphviz                                                       :graphviz:
 
 #+BEGIN_SRC emacs-lisp
   (req-package graphviz-dot-mode
     :init (defalias 'dot-mode 'graphviz-dot-mode))
-#+END_SRC
-
-** Java                                                               :java:
-
-#+BEGIN_SRC emacs-lisp
-  (req-package malabar-mode
-    :mode "\\.java$")
-
-  (req-package gradle-mode
-    :mode "\\.gradle$")
 #+END_SRC
 
 ** javascript                                                   :javascript:
@@ -2034,46 +2028,6 @@ GitHub: https://github.com/trotzig/import-js
 #+BEGIN_SRC emacs-lisp
   (req-package qml-mode
     :init (add-to-list 'auto-mode-alist '("\\.qml$" . qml-mode)))
-#+END_SRC
-
-** Ruby                                                               :ruby:
-
-#+BEGIN_SRC emacs-lisp
-  (req-package ruby-mode
-    :mode (("Rakefile\\'" . ruby-mode)
-           ("\\.rake$" . ruby-mode)
-           ("\\.gemspec$" . ruby-mode)
-           ("\\.rb$'" . ruby-mode)
-           ("\\.ru$" . ruby-mode)
-           ("Gemfile$" . ruby-mode)
-           ("Guardfile$" . ruby-mode))
-    :config
-    (progn
-      ;; We never want to edit Rubinius bytecode
-      (add-to-list 'completion-ignored-extensions ".rbc")
-      ))
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-  (req-package rake)
-#+END_SRC
-** Rust                                                               :rust:
-
-[[https://github.com/rust-lang/rust-mode][rust-mode]] is a major emacs-mode for editing Rust source code.
-
-#+BEGIN_SRC emacs-lisp
-  (req-package rust-mode
-    :mode "\\.rs\\'")
-#+END_SRC
-
-** scala                                                             :scala:
-
-#+BEGIN_SRC emacs-lisp
-  (req-package scala-mode
-    :mode (("\\.scala$" . scala-mode)))
-
-  (req-package sbt-mode
-    :mode (("\\.sbt$" . sbt-mode)))
 #+END_SRC
 
 ** SSH Config                                                          :ssh:
@@ -2175,7 +2129,8 @@ GitHub: https://github.com/Fuco1/litable
 
 *** Highlight functions or macros belone to cl.el
 
-#+BEGIN_SRC emacs-lisp
+    TODO - fails compiling at the moment
+#+BEGIN_SRC emacs-lisp :tangle no
   (req-package highlight-cl
     :init
     (add-hook 'emacs-lisp-mode-hook
@@ -2558,6 +2513,40 @@ which add a =j= command to let you jump to folder you has been access.
 
 * Version Control
 
+** Ediff support for revision history
+
+Use ediff to show the difference between the current revision and a
+previous one. 
+
+#+BEGIN_SRC emacs-lisp
+(defun ediff-current-buffer-revision ()
+    "Run Ediff to diff current buffer's file against VC depot.
+Uses `vc.el' or `rcs.el' depending on `ediff-version-control-package'."
+    (interactive)
+    (let ((file (or (buffer-file-name)
+                    (error "Current buffer is not visiting a file")))
+          rev1)
+      (if (and (buffer-modified-p)
+               (y-or-n-p (message "Buffer %s is modified. Save buffer? "
+                                  (buffer-name))))
+          (save-buffer (current-buffer)))
+      (setq rev1 (read-string
+                  (format "Revision to compare (default latest revision): ")))
+      (ediff-load-version-control)
+      (funcall
+       (intern (format "ediff-%S-internal" ediff-version-control-package))
+       rev1 "" nil)))
+#+END_SRC
+
+TODO
+#+BEGIN_SRC emacs-lisp :noweb yes :results silent
+  (autoload 'ediff-load-version-control "ediff")
+  (eval-after-load 'ediff '(setq ediff-window-setup-function #'ediff-setup-windows-plain))
+
+  ;; Rebind 'C-x v = from vc-diff to ediff-current-buffer-revision
+  (global-set-key "\C-xv=" 'ediff-current-buffer-revision)
+#+END_SRC
+
 ** Git                                                                 :git:
 
 *** Add suport for git configuration files
@@ -2584,6 +2573,15 @@ https://github.com/itsjeyd/git-wip-timemachine
 #+BEGIN_SRC emacs-lisp
   (req-package git-wip-timemachine)
 #+END_SRC
+
+*** Use git-timemachine to browse the file history
+
+https://github.com/pidu/git-timemachine
+
+#+BEGIN_SRC emacs-lisp
+  (req-package git-timemachine)
+#+END_SRC
+
 
 *** Setup keybindings                                          :keybinding:
 
