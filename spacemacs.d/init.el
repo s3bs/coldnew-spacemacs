@@ -26,7 +26,7 @@ values."
      auto-completion
      ;better-defaults
      emacs-lisp
-     git
+     ;git
      ;github
      ;markdown
      ;clojure
@@ -39,7 +39,7 @@ values."
      ;scala
      ;ruby
      ;yaml
-     ;; org
+     ;org
      ;; (shell :variables
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
@@ -56,7 +56,9 @@ values."
    ;; configuration in `dotspacemacs/config'.
    dotspacemacs-additional-packages '()
    ;; A list of packages and/or extensions that will not be install and loaded.
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(evil-magit
+                                    evil-snipe
+                                    )
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
    ;; are declared in a layer which is not a member of
    ;; the list `dotspacemacs-configuration-layers'. (default t)
@@ -64,10 +66,10 @@ values."
 
 (defun dotspacemacs/init ()
   "Initialization function.
-This function is called at the very startup of Spacemacs initialization
-before layers configuration.
-You should not put any user code in there besides modifying the variable
-values."
+    This function is called at the very startup of Spacemacs initialization
+    before layers configuration.
+    You should not put any user code in there besides modifying the variable
+    values."
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
   (setq-default
@@ -93,13 +95,12 @@ values."
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
    dotspacemacs-themes '(zenburn)
-			 ;spacemacs-dark
+                         ;spacemacs-dark
                          ;spacemacs-light
                          ;solarized-light
                          ;solarized-dark
                          ;leuven
                          ;monokai
-                         
    ;; If non nil the cursor color matches the state color.
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font. `powerline-scale' allows to quickly tweak the mode-line
@@ -205,8 +206,8 @@ values."
 
 (defun dotspacemacs/user-init ()
   "Initialization function for user code.
-It is called immediately after `dotspacemacs/init'.  You are free to put any
-user code."
+    It is called immediately after `dotspacemacs/init'.  You are free to put any
+    user code."
   )
 
 (defun dotspacemacs/user-config ()
