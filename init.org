@@ -315,16 +315,16 @@ spacemacs, you can skip the following code.
 
 * Spacemacs
 
-[[https://github.com/syl20bnr/spacemacs][Spacemacs]] is an emacs starterkit focusing on [[https://gitorious.org/evil/pages/Home][Evil]], which emulates the vim 
-keymap on Emacs. 
+[[https://github.com/syl20bnr/spacemacs][Spacemacs]] is an emacs starterkit focusing on [[https://gitorious.org/evil/pages/Home][Evil]], which emulates the vim
+keymap on Emacs.
 
 I put my emacs settings on top of spacemacs and set it to use emacs (=holy=)
-keybindings. 
+keybindings.
 
 In my config file, the original =~/.spacemacs= file has moved to
 =~/.emacs.d/spacemacs.d/init.el= , I also advice spacemacs funtion to
 prevent orphan packages deleted by spacemacs. If you want the vim keymap, change
-the appropriate variable in the spacemacs init. 
+the appropriate variable in the spacemacs init.
 
 After all spacemacs init is done, switch back to the =*scratch*= buffer.
 
@@ -363,7 +363,7 @@ version, I'll handle this myself.
 
 The original spacemacs suggests to clone it to =~/.emacs.d=, I really do not like
 this. Instead, I move it to =~/.emacs.d/modules/spacemacs= so I can use org-mode
-to describe my init. 
+to describe my init.
 
 #+BEGIN_SRC emacs-lisp
   ;; Make a fake entry point for spacemacs, also modify the
@@ -389,16 +389,6 @@ spacemacs is really awesome, but there's something I don't like.
 
 #+BEGIN_SRC emacs-lisp
   (global-hl-line-mode -1)
-#+END_SRC
-
-*** switch back to `*scratch*' buffer after loading spacemacs finished
-
-#+BEGIN_SRC emacs-lisp
-  ;; After spacemacs loading finished, switch back to `*scratch*' buffer
-  ;; and make sure it's in `lisp-interaction-mode'
-  (switch-to-buffer "*scratch*")
-  (with-current-buffer (get-buffer-create "*scratch*")
-    (lisp-interaction-mode))
 #+END_SRC
 
 *** Don't use ido-mode
@@ -501,8 +491,9 @@ I move the file to cache-dir and make git ignore it.
 ** Turn-off menu bar
 
 The menu bar is one of the UI elements which work best with mouses.
+So you can turn it off if you want.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (menu-bar-mode -1)
 #+END_SRC
 
@@ -539,6 +530,32 @@ Just let me use =y= or =n= with no =RET= required and I'm quite happy.
   (defalias 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 
+** Ignore Case when completing
+Ignore case when completing names filename etc
+
+#+BEGIN_SRC emacs-lisp
+  (setq completion-ignore-case t
+        read-file-name-completion-ignore-case t)
+#+END_SRC
+** Basic find and dired settings
+
+#+BEGIN_SRC emacs-lisp
+  (setq find-ls-option '("-print0 | xargs -0 ls -alhd" . ""))
+  (setq dired-listing-switches "-alh")
+  (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
+#+END_SRC
+** Visual Bell 
+
+#+BEGIN_SRC  emacs-lisp
+  (setq visible-bell t)
+#+END_SRC
+** Initial Major Mode
+
+Always make sure that =*scratch*= is in lisp-interaction-mode
+
+#+BEGIN_SRC emacs-lisp
+  (setq initial-major-mode 'lisp-interaction-mode)
+#+END_SRC
 * Languages and Encodings
 
 Since the current Emacs default runs on UTF-8, there's no need to setup the encoding.
@@ -596,6 +613,98 @@ Convert simple ASCII art drawings (and org-tables) to beautiful Unicode.
 
 #+BEGIN_SRC emacs-lisp
   (req-package ascii-art-to-unicode)
+#+END_SRC
+
+** Desktop Sessions
+
+#+BEGIN_SRC emacs-lisp
+  (req-package desktop)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp :noweb yes 
+  (defun my-desktop-auto-save ()
+    (interactive)
+    ;; Don't call desktop-save-in-desktop-dir, as it prints a message.
+    (if (eq (desktop-owner) (emacs-pid))
+        (desktop-save desktop-dirname t)))
+  (add-hook 'auto-save-hook 'my-desktop-auto-save)
+  (add-hook 'after-save-hook 'my-desktop-auto-save)
+  (add-hook 'find-file-hook 'my-desktop-auto-save)
+
+
+  (defvar my-desktop-session-dir
+    (concat (getenv "HOME") "/.emacs.d/.cache/desktop-sessions/")
+    "*Directory to save desktop sessions in")
+
+  (defvar my-desktop-session-name-hist nil
+    "Desktop session name history")
+
+  (defun my-desktop-save (&optional name)
+    "Save desktop by name."
+    (interactive)
+    (unless name
+      (setq name (my-desktop-get-session-name "Save session" t)))
+    (when name
+      (make-directory (concat my-desktop-session-dir name) t)
+      (desktop-save (concat my-desktop-session-dir name) t)))
+
+  (defun my-desktop-save-and-clear ()
+    "Save and clear desktop."
+    (interactive)
+    (call-interactively 'my-desktop-save)
+    (desktop-clear)
+    (setq desktop-dirname nil))
+
+  (defun my-desktop-read (&optional name)
+    "Read desktop by name."
+    (interactive)
+    (unless name
+      (setq name (my-desktop-get-session-name "Load session")))
+    (when name
+      (desktop-clear)
+      (desktop-read (concat my-desktop-session-dir name))))
+
+  (defun my-desktop-change (&optional name)
+    "Change desktops by name."
+    (interactive)
+    (let ((name (my-desktop-get-current-name)))
+      (when name
+        (my-desktop-save name))
+      (call-interactively 'my-desktop-read)))
+
+  (defun my-desktop-name ()
+    "Return the current desktop name."
+    (interactive)
+    (let ((name (my-desktop-get-current-name)))
+      (if name
+          (message (concat "Desktop name: " name))
+        (message "No named desktop loaded"))))
+
+  (defun my-desktop-get-current-name ()
+    "Get the current desktop name."
+    (when desktop-dirname
+      (let ((dirname (substring desktop-dirname 0 -1)))
+        (when (string= (file-name-directory dirname) my-desktop-session-dir)
+          (file-name-nondirectory dirname)))))
+
+  (defun my-desktop-get-session-name (prompt &optional use-default)
+    "Get a session name."
+    (let* ((default (and use-default (my-desktop-get-current-name)))
+           (full-prompt (concat prompt (if default
+                                           (concat " (default " default "): ")
+                                         ": "))))
+      (completing-read full-prompt (and (file-exists-p my-desktop-session-dir)
+                                        (directory-files my-desktop-session-dir))
+                       nil nil nil my-desktop-session-name-hist default)))
+
+  (defun my-desktop-kill-emacs-hook ()
+    "Save desktop before killing emacs."
+    (when (file-exists-p (concat my-desktop-session-dir "last-session-" (format-time-string "%Y-%j")))
+      (setq desktop-file-modtime
+            (nth 5 (file-attributes (desktop-full-file-name (concat my-desktop-session-dir "last-session-" (format-time-string "%Y-%j")))))))
+    (my-desktop-save (concat "last-session-" (format-time-string "%Y-%j"))))
+
+  (add-hook 'kill-emacs-hook 'my-desktop-kill-emacs-hook)
 #+END_SRC
 
 ** iedit                                                            :review:
@@ -705,7 +814,7 @@ buffer.
   (req-package manage-minor-mode)
 #+END_SRC
 
-** noflet 
+** noflet
 
 GitHub: https://github.com/nicferrier/emacs-noflet
 
@@ -1105,7 +1214,7 @@ others user.
 
 A really nice command to help me to find errors on elisp buffer.
 
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
   (defun eval-buffer-until-error ()
     "Evaluate emacs buffer until error occured."
     (interactive)
@@ -1145,8 +1254,7 @@ unload the previous theme before loading a new one.
   (req-package spaceline)
 #+END_SRC
 
-
-* Minibuffer                                                    :minibuffer:
+* Minibuffer                                                     :minibuffer:
 
 #+BEGIN_SRC emacs-lisp
   (req-package minibuffer
@@ -1160,7 +1268,7 @@ unload the previous theme before loading a new one.
 
 Some general purpose keybinding I famillier with.
 
-#+BEGIN_SRC emacs-lisp 
+#+BEGIN_SRC emacs-lisp
   (define-key minibuffer-local-map (kbd "C-w") 'backward-kill-word)
   (define-key minibuffer-local-map (kbd "M-p") 'previous-history-element)
   (define-key minibuffer-local-map (kbd "M-n") 'next-history-element)
@@ -1208,7 +1316,8 @@ I put some editor/IDE relative functions and packages here.
 In most case, I'll make line numers display globally by =linum=.
 
 #+BEGIN_SRC emacs-lisp
-  (req-package linum :init (global-linum-mode 1))
+  (req-package linum
+     :init (global-linum-mode 1))
 #+END_SRC
 
 Disable line number in some mode, for example, since =org-mode= can
@@ -1258,7 +1367,7 @@ depth.
 
 ** Vim Emulation                                                      :evil:
 
-I'm leaving this here for reference, but I don't like emacs. 
+I'm leaving this here for reference, but I don't like emacs.
 So if you want some vim additional vim commands ...
 
 #+BEGIN_SRC emacs-lisp :noweb no-export :tangle no
@@ -1308,13 +1417,32 @@ they work nicely with version control systems.
 #+END_SRC
 
 ** Remote file editing                                               :tramp:
-TODO
+
 #+BEGIN_SRC emacs-lisp
   (req-package tramp
     :config
     (progn
-      (setq tramp-default-method "rsync")))
+      (setq tramp-default-method "ssh")
+      (tramp-set-completion-function "ssh"
+                                     '((tramp-parse-sconfig "/etc/ssh_config")
+                                      (tramp-parse-sconfig "~/.ssh/config")))))
+  ;; tramp and projectile might not play well together
+  (defadvice projectile-project-root (around ignore-remote first activate)
+    (unless (file-remote-p default-directory) ad-do-it))
 #+END_SRC
+
+** Uniquify buffer names
+
+#+BEGIN_SRC emacs-lisp
+  ;; change default naming of buffers with same file to uniqify them
+  (req-package uniquify
+     :config
+     (progn
+        (setq uniquify-buffer-name-style 'post-forward)
+        ; rename after killing uniquified
+        (setq uniquify-after-kill-buffer-p t)))
+#+END_SRC
+
 
 ** Intelligently call whitespace-cleanup on save                :whitespace:
 
@@ -1368,8 +1496,8 @@ GitHub: https://github.com/dgutov/highlight-escape-sequences
       (put 'font-lock-regexp-grouping-backslash 'face-alias 'font-lock-builtin-face)
 
       ;; Add extra modes
-      (add-to-list 'hes-simple-modes 'c-mode)
-      (add-to-list 'hes-simple-modes 'c++-mode)
+      ;(add-to-list 'hes-simple-modes 'c-mode)
+      ;(add-to-list 'hes-simple-modes 'c++-mode)
 
       ;; Enable globally
       (hes-mode 1)))
@@ -1538,6 +1666,19 @@ to let emacs re-create it automatically.
                               (lisp-interaction-mode)))))
 #+END_SRC
 
+** Dired+
+
+I prefer to use =dired+= mode instead of plain old dired
+
+** Fringe Style
+
+Setting fringe margin. Default is 8. Setting it to 0 removes IMHO useful arrows
+that are visual aids when lines are too long.
+
+#+BEGIN_SRC emacs-lisp
+  (when (functionp 'set-fringe-style)
+    (set-fringe-style 5))
+#+END_SRC
 * Helm                                                                 :helm:
 
 #+BEGIN_SRC emacs-lisp
@@ -1971,8 +2112,8 @@ Use my C++ coding style.
 #+END_SRC
 
 ** Graphviz                                                       :graphviz:
-
-#+BEGIN_SRC emacs-lisp
+TODO there is currently a bug in graphviz and i don't really need it. 
+#+BEGIN_SRC emacs-lisp :tangle no
   (req-package graphviz-dot-mode
     :init (defalias 'dot-mode 'graphviz-dot-mode))
 #+END_SRC
@@ -2221,7 +2362,7 @@ https://github.com/clojure-emacs/clj-refactor.el
       (setq nrepl-log-messages t)
 
       ;; Toggle between test and implementation, instead of showing test report buffer.
-      (eval-adter-load 'projectile
+      (eval-after-load 'projectile
                        (define-key cider-mode-map (kbd "C-c C-t") 'projectile-toggle-between-implementation-and-test))
       ))
 #+END_SRC
@@ -2516,7 +2657,7 @@ which add a =j= command to let you jump to folder you has been access.
 ** Ediff support for revision history
 
 Use ediff to show the difference between the current revision and a
-previous one. 
+previous one.
 
 #+BEGIN_SRC emacs-lisp
 (defun ediff-current-buffer-revision ()
@@ -2548,6 +2689,7 @@ TODO
 #+END_SRC
 
 ** Git                                                                 :git:
+
 
 *** Add suport for git configuration files
 
@@ -2592,6 +2734,30 @@ https://github.com/pidu/git-timemachine
       (define-key magit-mode-map (kbd "C-g") 'magit-mode-quit-window)))
 #+END_SRC
 
+** Backup
+
+Old style emacs backups if you don't have git or want an additional backup
+just in case.
+
+#+BEGIN_SRC emacs-lisp
+  ;; Emacs creates a backup only when you save the first time. This is incompatible
+  ;; with most people’s basic editing behavior of leaving Emacs and its buffers
+  ;; open all the time and constantly making changes and writing them to disk.
+  (setq
+   make-backup-files t      ; although this should be on by default
+   backup-by-copying t      ; don't clobber symlinks
+   backup-directory-alist '(("." . "~/.emacs.d/cache/saves"))    ; don't litter my fs tree
+   delete-old-versions t
+   kept-new-versions 10
+   kept-old-versions 1
+   vc-make-backup-files t   ; make backups of versioned files too
+   version-control t)       ; use version'ed backups
+
+  (defun force-backup-of-buffer ()
+    (setq buffer-backed-up nil))
+
+  (add-hook 'before-save-hook  'force-backup-of-buffer)
+#+END_SRC
 * Cedet                                                               :cedet:
 
 #+BEGIN_SRC emacs-lisp
@@ -2624,6 +2790,24 @@ Create my minor-mode to control all keybindings
   ;; Gloabal enable
   (global-coldnew-editor-mode t)
 #+end_src
+** Default Emacs
+
+
+I'm putting those here until I know better.
+
+#+BEGIN_SRC emacs-lisp
+  ; although might switch to helm-find mhh
+  (global-set-key [f5] 'find-name-dired)
+  ; helm-mini is much better suited than helm-buffer-list
+  ; which has an annoying history subbuffer than can contain non existent buffers
+  (global-set-key (kbd "C-x b") 'helm-mini)
+
+  ; enable use of colored ibuffer-list-buffers
+  (global-set-key (kbd "C-x C-b") 'ibuffer-list-buffers)
+  (global-set-key (kbd "M-<up>") 'move-line-up)
+  (global-set-key (kbd "M-<down>") 'move-line-down)
+  (global-set-key (kbd "C-x o") 'ace-window)
+#+END_SRC
 
 ** Spacemacs Map
 
