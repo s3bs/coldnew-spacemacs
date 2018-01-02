@@ -81,7 +81,7 @@ are =optional= but can make this configuration work more nicely.
 #+BEGIN_SRC sh :tangle no
   brew install the_silver_searcher
   brew install fasd
-  brew install docmacs
+  brew install doxymacs
   brew install aspell --with-lang-en
 #+END_SRC
 
@@ -107,17 +107,17 @@ config. These configurations are derived from my original init.el file.
 #+BEGIN_SRC emacs-lisp
   ;; since emacs 24.4, new option `load-prefer-newer' has been
   ;; introduce, which make me never accidentally using outdated compiled files.
-  (setq load-prefer-newer t)
+  (customize-set-variable 'load-prefer-newer t)
 #+END_SRC
 
 ** change the user-emacs-directory
 
-I this configuration, =user-emacs-directory= always refer to the emacs
+In this configuration, the =user-emacs-directory= always refers to the emacs
 configuration's init.el parent directory.
 
 #+BEGIN_SRC emacs-lisp
-  ;; We set `user-emacs-directory' here so we can use command-line
-  ;; switch different emacs configuration like following:
+  ;; We set the `user-emacs-directory' here so we can use a command-line
+  ;; argument to switch between different emacs configurations like following:
   ;;
   ;;    emacs -q -l ~/coldnew-spacemacs/init.el
   (defconst user-emacs-directory
@@ -147,14 +147,14 @@ Before we start this section, we need to initialize =package.el= first.
   (package-initialize)
 #+END_SRC
 
-The main package magement in my emacs is [[https://github.com/cask/cask][Cask]], which is a really nice package
-like npm, cargo ...etc.
+The main package management in my emacs is [[https://github.com/cask/cask][Cask]], which is a really nice package
+manager like npm, cargo ...etc.
 
-[[https://github.com/cask/cask][Cask]] can also install packages according to your emacs version, so you don't be
-afraid to get version conflicts after upgrade emacs.
+[[https://github.com/cask/cask][Cask]] can also install packages according to your emacs version, so don't be
+afraid if you get version conflicts after upgrade emacs.
 
-Take my emacs as example, after initialize [[https://github.com/cask/cask][Cask]], all package install by
-=package.el= just save to =.cask= folder according to your emacs version.
+Take my emacs as example, after initializing [[https://github.com/cask/cask][Cask]], all packages installed by
+=package.el= are just saved to the =.cask= folder according to your emacs version.
 
 #+BEGIN_EXAMPLE
   coldnew@Sara ~/.emacs.d $ tree -L 1 .cask/
@@ -228,13 +228,25 @@ Finally, we add the following lines to our init file:
 
 *** Initialize Pallet
 
-Since we already install pallet via cask, we just need to use the following code
+Since we already installed pallet via cask, we just need to use the following code
 to initialize pallet.
 
 #+BEGIN_SRC emacs-lisp
   (require 'pallet)
   (pallet-mode t)
 #+END_SRC
+
+*** Enable async package compilation
+
+Allow `async' to compile your packages asynchronously. You can also define
+if you want to include all packages or select specific ones.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'async)
+  (async-bytecomp-package-mode 1)
+  (customize-set-variable 'async-bytecomp-allowed '(all))
+#+END_SRC
+
 
 ** quelpa
 
@@ -271,8 +283,8 @@ line to our init file to begin using =req-package=:
 
 *** Start loading packages in right order
 
-To start loading packages in right order, we need to added following in the last
-of emacs config.
+To start loading packages in right order, we need to add the following as the last
+thing in our emacs config.
 
 #+BEGIN_SRC emacs-lisp :tangle no
   (req-package-finish)
@@ -289,7 +301,7 @@ Though I use =Cask= as package management in my emacs, some local packages like
 my own theme or others can't fetch by elpa need to add to load-path, this will
 help emacs find them.
 
-Following are my method to add directories to load-path ~recursively~, this
+Following are my methods to add directories to load-path ~recursively~, this
 function also creates a directory, if the directory does not exist.
 
 If you don't have any local elisp and all packages are mantained by cask, elpa or
@@ -322,8 +334,8 @@ I put my emacs settings on top of spacemacs and set it to use emacs (=holy=)
 keybindings.
 
 In my config file, the original =~/.spacemacs= file has moved to
-=~/.emacs.d/spacemacs.d/init.el= , I also advice spacemacs funtion to
-prevent orphan packages deleted by spacemacs. If you want the vim keymap, change
+=~/.emacs.d/spacemacs.d/init.el= , I also advice spacemacs function to
+prevent orphan packages being deleted by spacemacs. If you want the vim keymap, change
 the appropriate variable in the spacemacs init.
 
 After all spacemacs init is done, switch back to the =*scratch*= buffer.
@@ -377,25 +389,29 @@ to describe my init.
          (user-emacs-directory (file-name-directory spacemacs-init))
          ;; following line is a current HOTFIX to allow spacemacs set package repos
          (package--initialized nil))
-    ;; Initial spacemacs, our emacs run on top of it
-    (load spacemacs-init))
+         ;; Initial spacemacs, our emacs run on top of it
+         ;(load spacemacs-init))
+    )
 #+END_SRC
 
 ** Some function should execute after loading spacemacs-init.
 
 spacemacs is really awesome, but there's something I don't like.
 
-*** Disable global highlight by default
+*** Enable/Disable global highlight by default
+
+Only if you want though. I like a highlighted line.
+Spacemacs enables this one already.
 
 #+BEGIN_SRC emacs-lisp
-  (global-hl-line-mode -1)
+  (global-hl-line-mode t)
 #+END_SRC
 
 *** Don't use ido-mode
 
-I don't like the =ido-mode=.
+I don't like the =ido-mode=. Or maybe I do. #Enabled for now.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (ido-mode -1)
 #+END_SRC
 
@@ -404,9 +420,14 @@ I don't like the =ido-mode=.
 I *really* hate spacemacs default echo the helm input in header line, it's
 really annoying.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (setq helm-echo-input-in-header-line nil)
   (remove-hook 'helm-minibuffer-set-up-hook 'helm-hide-minibuffer-maybe)
+#+END_SRC
+
+*** Turn off annoying things
+#+BEGIN_SRC emacs-lisp
+  (smartparens-mode nil)
 #+END_SRC
 
 * Basic setup
@@ -433,9 +454,9 @@ The =Option= key will be setup as =Super=.
 We also disable some keys like =⌘-h= bypass to system in emacs-mac port.
 
 #+BEGIN_SRC emacs-lisp
-  (setq mac-option-modifier 'super)
-  (setq mac-command-modifier 'meta)
-  (setq mac-pass-command-to-system nil)
+  (customize-set-variable 'mac-option-modifier 'super)
+  (customize-set-variable 'mac-command-modifier 'meta)
+  (customize-set-variable 'mac-pass-command-to-system nil)
 #+END_SRC
 
 ** Don't ask me when I close emacs with a process running
@@ -544,7 +565,7 @@ Ignore case when completing names filename etc
   (setq dired-listing-switches "-alh")
   (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
 #+END_SRC
-** Visual Bell 
+** Visual Bell
 
 #+BEGIN_SRC  emacs-lisp
   (setq visible-bell t)
@@ -554,16 +575,16 @@ Ignore case when completing names filename etc
 Always make sure that =*scratch*= is in lisp-interaction-mode
 
 #+BEGIN_SRC emacs-lisp
-  (setq initial-major-mode 'lisp-interaction-mode)
+  (customize-set-variable 'initial-major-mode 'lisp-interaction-mode)
 #+END_SRC
 * Languages and Encodings
 
 Since the current Emacs default runs on UTF-8, there's no need to setup the encoding.
 
-For language, though Traditional Chinese is my mothertone, I still prefer use
+For languages, though Traditional Chinese is my mothertone, I still prefer use
 =en_US= to display time info.
-
-#+BEGIN_SRC emacs-lisp
+#TODO trailing what happens if i don't have this
+#+BEGIN_SRC emacs-lisp :tangle no
   (prefer-coding-system 'utf-8)
   (setq system-time-locale "en_US")
 #+END_SRC
@@ -580,7 +601,9 @@ Some buildin packages are not loaded by emacs, load it here.
 
 ** htmlize                                                  :htmlize:review:
 
-#+BEGIN_SRC emacs-lisp
+Disabled for now. Don't think i use it
+
+#+BEGIN_SRC emacs-lisp :tangle no
   (req-package htmlize)
 #+END_SRC
 
@@ -607,11 +630,11 @@ another window an ASCII table highlighting the current character code.
             (defalias 'ascii 'ascii-toggle)))
 #+END_SRC
 
-** ascii-art-to-unicode
+** ascii-art-to-unicode                                             :review:disabled:
 
 Convert simple ASCII art drawings (and org-tables) to beautiful Unicode.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (req-package ascii-art-to-unicode)
 #+END_SRC
 
@@ -621,7 +644,7 @@ Convert simple ASCII art drawings (and org-tables) to beautiful Unicode.
   (req-package desktop)
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :noweb yes 
+#+BEGIN_SRC emacs-lisp :noweb yes
   (defun my-desktop-auto-save ()
     (interactive)
     ;; Don't call desktop-save-in-desktop-dir, as it prints a message.
@@ -719,22 +742,22 @@ GitHub: https://github.com/victorhge/iedit
   (req-package iedit)
 #+END_SRC
 
-** sx
+** sx                                                               :review:disabled:
 
 [[https://github.com/vermiculus/sx.el/][SX]] is a full featured Stack Exchange mode for GNU Emacs 24+. Using the official
 API, it provides a versatile experience for the Stack Exchange network within
 Emacs itself.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (req-package sx :require sx-load)
 #+END_SRC
 
-** hungry-delete
+** hungry-delete                                                    :disabled:
 
 [[https://github.com/nflath/hungry-delete][hungry-delete]] borrows hungry deletion from =cc-mode=, which will causes deletion
 to delete all whitespace in the direction you are deleting.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (req-package hungry-delete
     :init (global-hungry-delete-mode))
 #+END_SRC
@@ -767,21 +790,21 @@ inside buffer immediately.
 
 ** discover-my-major
 
-[[https://github.com/steckerhalter/discover-my-major][discover-my-major]] make you discover key bindings and their meaning for the
+[[https://github.com/steckerhalter/discover-my-major][discover-my-major]] makes you discover key bindings and their meaning for the
 current Emacs major mode.
 
 #+BEGIN_SRC emacs-lisp
   (req-package discover-my-major)
 #+END_SRC
 
-** howdoi                                                           :review:
+** howdoi                                                           :review:disabled:
 
 ~Not sure I need this~
 
 [[https://github.com/atykhonov/emacs-howdoi][howdoi]] is a way to query Stack Overflow directly from the Emacs and get back the
 most upvoted answer to the first question that comes up for that query.
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :angle no
   (req-package howdoi)
 #+END_SRC
 
@@ -795,7 +818,7 @@ Ever find that a command works in your shell, but not in Emacs?
 This happens a lot on OS X, where an Emacs instance started from the GUI
 inherits a default set of environment variables.
 
-This library works solves this problem by copying important environment
+This library solves this problem by copying important environment
 variables from the user's shell: it works by asking your shell to print out the
 variables of interest, then copying them into the Emacs environment.
 
@@ -807,14 +830,28 @@ variables of interest, then copying them into the Emacs environment.
 
 ** manage-minor-mode
 
-[[https://github.com/ShingoFukuyama/manage-minor-mode][manage-minor-mode]] let you manage your minor-mode on the dedicated interface
+[[https://github.com/ShingoFukuyama/manage-minor-mode][manage-minor-mode]] lets you manage your minor-mode in a dedicated
 buffer.
+
+GitHub: https://github.com/ShingoFukuyama/manage-minor-mode
 
 #+BEGIN_SRC emacs-lisp
   (req-package manage-minor-mode)
 #+END_SRC
 
+** mustache                                                                :disabled:
+
+A mustache templating library in Emacs Lisp.
+
+GitHub: https://github.com/Wilfred/mustache.el
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  (req-package mustache)
+#+END_SRC
+
 ** noflet
+
+Let's you decorate functions dynamically.
 
 GitHub: https://github.com/nicferrier/emacs-noflet
 
@@ -822,27 +859,7 @@ GitHub: https://github.com/nicferrier/emacs-noflet
   (req-package noflet)
 #+END_SRC
 
-** mustache                                         :mustache:review:webdev:
-
-A mustache templating library in Emacs Lisp.
-
-GitHub: https://github.com/Wilfred/mustache.el
-
-#+BEGIN_SRC emacs-lisp
-  (req-package mustache)
-#+END_SRC
-
-** manage-minor-mode
-
-Manage your minor-mode on the dedicated interface buffer.
-
-GitHub: https://github.com/ShingoFukuyama/manage-minor-mode
-
-#+BEGIN_EXAMPLE
-  (req-package manage-minor-mode)
-#+END_EXAMPLE
-
-** expand-region
+** expand-region                                                           :review:
 
 Expand region increases the selected region by semantic units. Just keep
 pressing the key until it selects what you want.
@@ -853,7 +870,7 @@ GitHub: https://github.com/magnars/expand-region.el
   (req-package expand-region)
 #+END_SRC
 
-** verify-url
+** verify-url                                                    :disabled:
 
 verify-url is a little tool that is used to find out invalid urls in the buffer or
 region.
@@ -865,11 +882,11 @@ invalid-url or =verify-url/previous-invalid-url= to goto previous one.
 
 GitHub: https://github.com/lujun9972/verify-url
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (req-package verify-url)
 #+END_SRC
 
-** zzz-to-char
+** zzz-to-char                                                   :review:
 
 This package provides two new commands: =zzz-to-char= and =zzz-up-to-char= which
 work like built-ins zap-to-char and zap-up-to-char, but allow you quickly select
@@ -904,7 +921,7 @@ of them and make =*scratch*= buffer alone.
   (defun nuke-all-buffers ()
     "Kill all buffers, leaving *scratch* only."
     (interactive)
-    (mapcar (lambda (x) (kill-buffer x)) (buffer-list))
+    (mapc (lambda (x) (kill-buffer x)) (buffer-list))
     (delete-other-windows))
 #+END_SRC
 
@@ -1015,7 +1032,7 @@ For more info, please see: [[https://lists.gnu.org/archive/html/emacs-orgmode/20
     (interactive)
     (move-end-of-line nil)
     (open-line 1)
-    (next-line 1))
+    (forward-line 1))
 #+END_SRC
 
 *** Insert lorem ipsum
@@ -1139,7 +1156,7 @@ For more info, please see: [[https://lists.gnu.org/archive/html/emacs-orgmode/20
 Actually this command is the same as =chmod +x= but it doesn't use any shell
 command, it use emacs's logior function to change file attribute.
 
-I only make =owener= can has executable permission, not change it for gourp or
+I only sets the executable permission for the  =owener=, but doesn't change it for group or
 others user.
 
 #+BEGIN_SRC emacs-lisp
@@ -1669,6 +1686,10 @@ to let emacs re-create it automatically.
 ** Dired+
 
 I prefer to use =dired+= mode instead of plain old dired
+#+BEGIN_SRC emacs-lisp
+  (req-package dired+)
+#+END_SRC
+
 
 ** Fringe Style
 
@@ -2112,7 +2133,7 @@ Use my C++ coding style.
 #+END_SRC
 
 ** Graphviz                                                       :graphviz:
-TODO there is currently a bug in graphviz and i don't really need it. 
+TODO there is currently a bug in graphviz and i don't really need it.
 #+BEGIN_SRC emacs-lisp :tangle no
   (req-package graphviz-dot-mode
     :init (defalias 'dot-mode 'graphviz-dot-mode))
@@ -2514,7 +2535,7 @@ like is it fully integrated with emacs.
        (setq eshell-prompt-function
              '(lambda ()
                 (concat
-                 user-login-name "@" system-name " "
+                 user-login-name "@" (system-name) " "
                  (if (search (directory-file-name (expand-file-name (getenv "HOME"))) (eshell/pwd))
                      (replace-regexp-in-string (expand-file-name (getenv "HOME")) "~" (eshell/pwd))
                    (eshell/pwd))
@@ -2522,7 +2543,7 @@ like is it fully integrated with emacs.
        ;; Add color for eshell prompt like Gentoo does
        (defun colorfy-eshell-prompt ()
          (let* ((mpoint)
-                (user-string-regexp (concat "^" user-login-name "@" system-name)))
+                (user-string-regexp (concat "^" user-login-name "@" (system-name))))
            (save-excursion
              (goto-char (point-min))
              (while (re-search-forward (concat user-string-regexp ".*[$#]") (point-max) t)
@@ -2815,7 +2836,10 @@ spacemacs reserve the =SPC-o= for user setup theirs own keymap, I think I should
 
 ** Normal State
 
+Have not decided yet how much I'll adapt ==coldemacs==
+
 #+BEGIN_SRC emacs-lisp
+(if (fboundp 'evil-define-key)
   (evil-define-key 'normal coldnew-editor-map
       (kbd "C-x C-f") 'helm-find-files
       (kbd "C-x C-q") 'read-only-mode
@@ -2836,12 +2860,13 @@ spacemacs reserve the =SPC-o= for user setup theirs own keymap, I think I should
       (kbd "M-o") 'other-window
       (kbd "C--") 'text-scale-decrease
       (kbd "C-=") 'text-scale-increase
-      )
+      ))
 #+END_SRC
 
 ** Insert State
 
 #+BEGIN_SRC emacs-lisp
+(if (fboundp 'evil-define-key)
   (evil-define-key 'insert coldnew-editor-map
     (kbd "<delete>") 'hungry-delete-backward
     (kbd "TAB") 'yas/expand
@@ -2881,12 +2906,14 @@ spacemacs reserve the =SPC-o= for user setup theirs own keymap, I think I should
     (kbd "C--") 'text-scale-decrease
     (kbd "C-x t") 'sane-term
     (kbd "C-x T") 'sane-term
-    )
+    ))
 #+END_SRC
 
 ** Ex Command
 
-#+BEGIN_SRC emacs-lisp
+#TODO disabled for now
+
+#+BEGIN_SRC emacs-lisp :tangle no
   (evil-ex-define-cmd "ag" 'helm-ag)
   (evil-ex-define-cmd "agp[roject]" 'helm-projectile-ag)
   (evil-ex-define-cmd "agi[nteractive]" 'helm-do-ag)
